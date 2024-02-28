@@ -5,11 +5,13 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import produce, { setAutoFreeze } from 'immer'
 import { useBoolean, useGetState } from 'ahooks'
+import {
+  PencilSquareIcon,
+} from '@heroicons/react/24/outline'
 import useConversation from '@/hooks/use-conversation'
 import Toast from '@/app/components/base/toast'
 import Sidebar from '@/app/components/sidebar'
 import ConfigSence from '@/app/components/config-scence'
-import Header from '@/app/components/header'
 import { fetchAppParams, fetchChatList, fetchConversations, generationConversationName, sendChatMessage, updateFeedback } from '@/service'
 import type { ConversationItem, Feedbacktype, IChatItem, PromptConfig, VisionFile, VisionSettings } from '@/types/app'
 import { Resolution, TransferMethod } from '@/types/app'
@@ -22,12 +24,15 @@ import AppUnavailable from '@/app/components/app-unavailable'
 import { API_KEY, APP_ID, APP_INFO, isShowPrompt, promptTemplate } from '@/config'
 import type { Annotation as AnnotationType } from '@/types/log'
 import { addFileInfos, sortAgentSorts } from '@/utils/tools'
+import Button from '@/app/components/base/button'
 
 const Main: FC = () => {
   const { t } = useTranslation()
   const media = useBreakpoints()
   const isMobile = media === MediaType.mobile
   const hasSetAppConfig = APP_ID && API_KEY
+
+  const [visible, setVisible] = useState<boolean>(false)
 
   /*
   * app info
@@ -563,58 +568,67 @@ const Main: FC = () => {
   if (!APP_ID || !APP_INFO || !promptConfig)
     return <Loading type='app' />
 
+  const handleClick = () => {
+    setVisible(!visible)
+    handleConversationIdChange('-1')
+  }
+
   return (
-    <div className='bg-gray-100'>
-      <Header
-        title={APP_INFO.title}
-        isMobile={isMobile}
-        onShowSideBar={showSidebar}
-        onCreateNewChat={() => handleConversationIdChange('-1')}
-      />
-      <div className="flex rounded-t-2xl bg-white overflow-hidden">
-        {/* sidebar */}
-        {!isMobile && renderSidebar()}
-        {isMobile && isShowSidebar && (
-          <div className='fixed inset-0 z-50'
-            style={{ backgroundColor: 'rgba(35, 56, 118, 0.2)' }}
-            onClick={hideSidebar}
-          >
-            <div className='inline-block' onClick={e => e.stopPropagation()}>
-              {renderSidebar()}
+    <div className='flex justify-between'>
+      <div className='w-full h-screen relative'>
+        <iframe
+          src="https://www.gffunds.com.cn/funds/?fundcode=270044"
+          style={{ width: '100%', height: '100%' }}
+          frameborder="0"
+          allow="microphone">
+        </iframe>
+        <Button
+          onClick={handleClick}
+          className="absolute right-4 top-4 bg-blue-100">
+          <PencilSquareIcon className="mr-2 h-4 w-4" /> AI助手
+        </Button>
+      </div>
+      {
+        visible && (
+          <div className="h-screen">
+            <div className='bg-gray-100'>
+              <div className="flex rounded-t-2xl bg-white overflow-hidden">
+                {/* main */}
+                <div className='flex-grow flex flex-col h-[calc(100vh_-_3rem)] overflow-y-auto'>
+                  <ConfigSence
+                    conversationName={conversationName}
+                    hasSetInputs={hasSetInputs}
+                    isPublicVersion={isShowPrompt}
+                    siteInfo={APP_INFO}
+                    promptConfig={promptConfig}
+                    onStartChat={handleStartChat}
+                    canEidtInpus={canEditInpus}
+                    savedInputs={currInputs as Record<string, any>}
+                    onInputsChange={setCurrInputs}
+                  ></ConfigSence>
+
+                  {
+                    hasSetInputs && (
+                      <div className='relative grow h-[200px] pc:w-[794px] max-w-full mobile:w-full pb-[66px] mx-auto mb-3.5 overflow-hidden'>
+                        <div className='h-full overflow-y-auto' ref={chatListDomRef}>
+                          <Chat
+                            chatList={chatList}
+                            onSend={handleSend}
+                            onFeedback={handleFeedback}
+                            isResponsing={isResponsing}
+                            checkCanSend={checkCanSend}
+                            visionConfig={visionConfig}
+                          />
+                        </div>
+                      </div>)
+                  }
+                </div>
+              </div>
             </div>
           </div>
-        )}
-        {/* main */}
-        <div className='flex-grow flex flex-col h-[calc(100vh_-_3rem)] overflow-y-auto'>
-          <ConfigSence
-            conversationName={conversationName}
-            hasSetInputs={hasSetInputs}
-            isPublicVersion={isShowPrompt}
-            siteInfo={APP_INFO}
-            promptConfig={promptConfig}
-            onStartChat={handleStartChat}
-            canEidtInpus={canEditInpus}
-            savedInputs={currInputs as Record<string, any>}
-            onInputsChange={setCurrInputs}
-          ></ConfigSence>
+        )
+      }
 
-          {
-            hasSetInputs && (
-              <div className='relative grow h-[200px] pc:w-[794px] max-w-full mobile:w-full pb-[66px] mx-auto mb-3.5 overflow-hidden'>
-                <div className='h-full overflow-y-auto' ref={chatListDomRef}>
-                  <Chat
-                    chatList={chatList}
-                    onSend={handleSend}
-                    onFeedback={handleFeedback}
-                    isResponsing={isResponsing}
-                    checkCanSend={checkCanSend}
-                    visionConfig={visionConfig}
-                  />
-                </div>
-              </div>)
-          }
-        </div>
-      </div>
     </div>
   )
 }
