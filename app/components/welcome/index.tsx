@@ -108,7 +108,7 @@ const Welcome: FC<IWelcomeProps> = ({
             {item.type === 'string' && (
               <input
                 placeholder={`${item.name}${!item.required ? `(${t('appDebug.variableTable.optional')})` : ''}`}
-                value={inputs?.[item.key] || ''}
+                value={inputs?.[item.key] || '广发双债添利债券A'}
                 onChange={(e) => { setInputs({ ...inputs, [item.key]: e.target.value }) }}
                 className={'w-full flex-grow py-2 pl-3 pr-3 box-border rounded-lg bg-gray-50'}
                 maxLength={item.max_length || DEFAULT_VALUE_MAX_LEN}
