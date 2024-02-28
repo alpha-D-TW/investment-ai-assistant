@@ -88,6 +88,13 @@ const Welcome: FC<IWelcomeProps> = ({
     )
   }
 
+  useEffect(() => {
+    setInputs({
+      currentProduct: '广发双债添利债券A',
+      userType: '保守型',
+    })
+  }, [])
+
   const renderInputs = () => {
     return (
       <div className='space-y-3'>
@@ -108,7 +115,7 @@ const Welcome: FC<IWelcomeProps> = ({
             {item.type === 'string' && (
               <input
                 placeholder={`${item.name}${!item.required ? `(${t('appDebug.variableTable.optional')})` : ''}`}
-                value={inputs?.[item.key] || '广发双债添利债券A'}
+                value={inputs?.[item.key] || ''}
                 onChange={(e) => { setInputs({ ...inputs, [item.key]: e.target.value }) }}
                 className={'w-full flex-grow py-2 pl-3 pr-3 box-border rounded-lg bg-gray-50'}
                 maxLength={item.max_length || DEFAULT_VALUE_MAX_LEN}
